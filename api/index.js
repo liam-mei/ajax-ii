@@ -8,20 +8,20 @@ const httpError = require("http-errors")
 const auth = require("./auth")
 
 const db = {
-  users: [
-    {
-      id: "a90c0f03-28d9-4c4a-a6b5-90239fb2d674",
-      name: "Jane Doe",
-      email: "jane@doe.com",
-      password: "abc123",
-    },
-    {
-      id: "0bace3c4-0062-48b4-bd54-c1b7970e654e",
-      name: "John Doe",
-      email: "john@doe.com",
-      password: "abc123",
-    }
-  ]
+	users: [
+		{
+			id: "a90c0f03-28d9-4c4a-a6b5-90239fb2d674",
+			name: "Jane Doe",
+			email: "jane@doe.com",
+			password: "abc123",
+		},
+		{
+			id: "0bace3c4-0062-48b4-bd54-c1b7970e654e",
+			name: "John Doe",
+			email: "john@doe.com",
+			password: "abc123",
+		},
+	],
 }
 
 const app = express()
@@ -64,7 +64,8 @@ app.post("/signup", (req, res, next) => {
 })
 
 app.post("/signin", (req, res, next) => {
-	const authErr = httpError(401, "Invalid email or password!")
+	const authErr = httpError(401, "Missing email or password!")
+	const authErr2 = httpError(401, "Invalid email or password!")
 
 	if (!req.body.email || !req.body.password) {
 		return next(authErr)
@@ -74,7 +75,9 @@ app.post("/signin", (req, res, next) => {
 	const user = db.users.find((v) => v.email === req.body.email)
 
 	if (!user || user.password !== req.body.password) {
-		return next(authErr)
+		console.log("user", user)
+		console.log("req body", req.body)
+		return next(authErr2)
 	}
 
 	res.json({
@@ -86,9 +89,10 @@ app.get("/me", auth.authMiddleware(), (req, res, next) => {
 	// const data = db.read()
 	const user = db.users.find((v) => v.id === req.userId)
 
-	delete user.password
+	// delete user.password
+	const returnedUser = { username: user.username, email: user.email }
 
-	res.json(user)
+	res.json(returnedUser)
 })
 
 app.get("/users", auth.authMiddleware(), (req, res, next) => {
@@ -97,7 +101,7 @@ app.get("/users", auth.authMiddleware(), (req, res, next) => {
 })
 
 app.get("/users/:id", auth.authMiddleware(), (req, res, next) => {
-	res.json(db.users.find(user => user.id === req.params.id))
+	res.json(db.users.find((user) => user.id === req.params.id))
 })
 
 app.put("/users/:id", auth.authMiddleware(), (req, res, next) => {
@@ -105,7 +109,7 @@ app.put("/users/:id", auth.authMiddleware(), (req, res, next) => {
 		return next(httpError(400, "Need to send a name and email!"))
 	}
 
-	const index = db.users.findIndex(user => user.id === req.params.id)
+	const index = db.users.findIndex((user) => user.id === req.params.id)
 	const user = db.users[index]
 
 	db.users[index] = {
@@ -117,8 +121,8 @@ app.put("/users/:id", auth.authMiddleware(), (req, res, next) => {
 })
 
 app.delete("/users/:id", auth.authMiddleware(), (req, res, next) => {
-	db.users = db.users.filter(user => user.id !== req.params.id)
-	
+	db.users = db.users.filter((user) => user.id !== req.params.id)
+
 	res.json({
 		success: true,
 	})

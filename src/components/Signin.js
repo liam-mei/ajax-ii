@@ -29,10 +29,10 @@ function Signin(props) {
 				props.history.push("/account")
 			})
 			.catch(err => {
-				setError(err.response.data.message)
+				setError(err.response.data)
 			})
 	}
-	
+
 	return (
 		<form onSubmit={handleSubmit}>
 			{error && <div className="error">{error}</div>}
